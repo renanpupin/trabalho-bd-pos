@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <script src="http://maps.googleapis.com/maps/api/js?key=<CHAVE>&sensor=false"></script>
+    <script>
+
+        function apresentaLocalizacoes() {
+
+            // $.get( "http://localhost:1345/", function( data ) {
+            //
+            //     var lat=-20.1;
+            //     var lon=50.1;
+            //
+            //     var myLatlng = new google.maps.LatLng(lat, lon);
+            //     var mapProp = {
+            //         center:myLatlng,
+            //         zoom:5,
+            //         mapTypeId:google.maps.MapTypeId.ROADMAP,
+            //         mapTypeControl: false
+            //     };
+            //
+            //     //criando objeto mapa
+            //     var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+            //
+            //     var obj = jQuery.parseJSON(data);
+            //
+            //     $.each($.parseJSON(data), function(idx, obj) {
+            //
+            //         var lat=obj.lat;
+            //         var lon=obj.lon;
+            //
+            //         var myLatlng = new google.maps.LatLng(lat, lon);
+            //
+            //         var marker = new google.maps.Marker({
+            //             position: myLatlng,
+            //             map: map,
+            //             title: obj.nome
+            //         });
+            //     });
+            //
+            // });
+
+        }
+
+    </script>
+</head>
+<body onload='apresentaLocalizacoes()'>
+    <div id="googleMap" style="position:fixed;top:0px;left:0px;width:100%;height:100%;"></div>
+</body>
+</html>

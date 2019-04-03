@@ -1,0 +1,23 @@
+{
+  "name": "trabalho-bd-pos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/renanpupin/trabalho-bd-pos.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/renanpupin/trabalho-bd-pos/issues"
+  },
+  "homepage": "https://github.com/renanpupin/trabalho-bd-pos#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mongodb": "^3.2.2"
+  }
+}
