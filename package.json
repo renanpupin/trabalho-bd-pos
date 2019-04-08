@@ -2,7 +2,7 @@
   "name": "trabalho-bd-pos",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/renanpupin/trabalho-bd-pos#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "mongodb": "^3.2.2"
+    "mongodb": "^3.2.2",
+    "mongoose": "^5.5.0"
   }
 }
