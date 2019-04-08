@@ -17,7 +17,7 @@ async function getPoints(){
         }else{
 
             responseBody.points.forEach((item) => {
-                let myLatlng = new google.maps.LatLng(item.location.coordinates[0], item.location.coordinates[1]);
+                let myLatlng = new google.maps.LatLng(item.location.coordinates[1], item.location.coordinates[0]);
 
                 let marker = new google.maps.Marker({
                     position: myLatlng,
@@ -80,12 +80,12 @@ function initMap() {
 
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: -21, lng: -44},
-        zoom: 4
+        zoom: 2
     });
 
-    // google.maps.event.addListener(map, 'mousemove', function (event) {
-    //     console.log(event.latLng.lat(), event.latLng.lng());
-    // });
+    google.maps.event.addListener(map, 'mousemove', function (event) {
+        console.log(event.latLng.lat(), event.latLng.lng());
+    });
 
     getPoints();
     getPolygon();

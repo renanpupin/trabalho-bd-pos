@@ -29,10 +29,16 @@ database.connect();
 //create point
 app.post('/api/point', asyncMiddleware(async (req, res) => {
 
-    const getRandomLatLon = (min = -90, max = 90) => {
+    const getRandomLatLon = () => {
+        let minLat = -90;
+        let maxLat = 90;
+
+        let minLon = -180;
+        let maxLon = 180;
+
         return [
-            Math.random() * (max - min) + min,
-            Math.random() * (max - min) + min
+            Math.random() * (maxLon - minLon) + minLon,
+            Math.random() * (maxLat - minLat) + minLat
         ]
     };
 
@@ -43,6 +49,7 @@ app.post('/api/point', asyncMiddleware(async (req, res) => {
                 name: "Ponto "+i,
                 location: {
                     type: "Point",
+                    // coordinates: [132, -24]
                     coordinates: getRandomLatLon()
                 }
             })

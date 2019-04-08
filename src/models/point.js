@@ -16,6 +16,6 @@ let PointSchema = new Schema({
     }
 });
 
-// PointSchema.index({ location: "2dsphere" });
+PointSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Point", PointSchema);
