@@ -5,6 +5,7 @@ const database = require('./src/database');
 const asyncMiddleware = require("./src/utils/asyncMiddleware");
 
 const PointModel = require("./src/models/point");
+const PolygonModel = require("./src/models/polygon");
 
 
 let app = express();
@@ -28,18 +29,32 @@ database.connect();
 //create point
 app.post('/api/point', asyncMiddleware(async (req, res) => {
 
-    let point = await new PointModel({
-        name: "ponto2",
-        location: {
-            type: "Point",
-            coordinates: [-20.123, -41.123]
-        },
-    }).save();
+    const getRandomLatLon = (min = -90, max = 90) => {
+        return [
+            Math.random() * (max - min) + min,
+            Math.random() * (max - min) + min
+        ]
+    };
+
+    const points = [];
+    for (let i = 0; i < 100; i++){
+        points.push(
+            new PointModel({
+                name: "Ponto "+i,
+                location: {
+                    type: "Point",
+                    coordinates: getRandomLatLon()
+                }
+            })
+        );
+    }
+    for (const point of points) {
+        await point.save();
+    }
 
     res.json({
         success: true,
-        message: "Ponto adicionado com sucesso",
-        point
+        message: "Pontos adicionados com sucesso"
     });
 }));
 
@@ -49,7 +64,7 @@ app.get('/api/point', asyncMiddleware(async (req, res) => {
     let points = await PointModel.find({
         location: {
             $near: {
-                $maxDistance: 1000000,
+                $maxDistance: 1000000000000000000000000,
                 $geometry: {
                     type: "Point",
                     coordinates: [-21, -42]
@@ -62,6 +77,58 @@ app.get('/api/point', asyncMiddleware(async (req, res) => {
         success: true,
         message: "Pontos buscados com sucesso",
         points
+    });
+}));
+
+//create polygon
+app.post('/api/polygon', asyncMiddleware(async (req, res) => {
+
+    await new PolygonModel({
+        name: 'Colorado',
+        location: {
+            "type": "Polygon",
+            "coordinates": [[
+                [-109, 41],
+                [-102, 41],
+                [-102, 37],
+                [-109, 37],
+                [-109, 41]
+            ]]
+        }
+    }).save();
+
+    res.json({
+        success: true,
+        message: "Cidade adicionada com sucesso"
+    });
+}));
+
+// get polygons
+app.get('/api/polygon', asyncMiddleware(async (req, res) => {
+
+    const colorado = {
+        type: 'Polygon',
+        coordinates: [[
+            [-109, 41],
+            [-102, 41],
+            [-102, 37],
+            [-109, 37],
+            [-109, 41]
+        ]]
+    };
+
+    let polygons = await PolygonModel.find({
+        // location: {
+        //     $geoWithin: {
+        //         $geometry: colorado
+        //     }
+        // }
+    });
+
+    res.json({
+        success: true,
+        message: "Polígonos buscados com sucesso",
+        polygons
     });
 }));
 
