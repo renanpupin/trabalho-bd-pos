@@ -17,7 +17,7 @@ async function getPoints(){
         }else{
 
             let size = 503.947;
-            let scale = 50;
+            let scale = 75;
             responseBody.points.forEach((item) => {
                 let myLatlng = new google.maps.LatLng(item.location.coordinates[1], item.location.coordinates[0]);
 
@@ -118,7 +118,7 @@ function initMap() {
             // console.log(pos);
 
             let size = 512;
-            let scale = 75;
+            let scale = 50;
             let userLocationMarker = new google.maps.Marker({
                 position: pos,
                 icon: {
