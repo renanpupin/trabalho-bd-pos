@@ -236,15 +236,28 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
         //         }
         //     }
         // }
-        localizacao: {
-            $geoWithin: {
-                $geometry: {
-                    type : "Polygon" ,
-                    coordinates: [ [ [ -54, -18 ], [ -41, -17 ], [ -41, -27 ], [ -57, -27 ], [ -54, -18 ] ] ]
-                }
-            }
-        }
-    }).limit(100);
+        // localizacao: {
+        //     $geoWithin: {
+        //         $geometry: {
+        //             type : "Polygon" ,
+        //             coordinates: [ [ [ -54, -18 ], [ -41, -17 ], [ -41, -27 ], [ -57, -27 ], [ -54, -18 ] ] ]
+        //         }
+        //     }
+        // }
+    })
+    .limit(500)
+    .skip(0)
+    .exec();
+
+
+    //Lista de crimos
+    // Furto (art. 155)
+    // Roubo (art. 157)
+    // Lesão corporal (art 129 § 9º)
+    // Furto qualificado (art. 155, §4o.)
+    // Lesão corporal culposa na direção de veículo automotor (Art. 303)
+    // Lesão corporal seguida de morte (art. 129, §3o.)
+    // A.I.-Drogas sem autorização ou em desacordo (Art.33, caput)
 
     res.json({
         success: true,
@@ -256,7 +269,7 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
 //importa csv de crimes
 app.get('/api/import/csv', function(req, res, next) {
 
-    let stream = fs.createReadStream("boletins_2016.csv");   //Dados completos em: https://data.world/maszanchi/boletins-de-ocorrencia-sp-2016
+    let stream = fs.createReadStream("boletins_complete.csv");   //Dados completos em: https://data.world/maszanchi/boletins-de-ocorrencia-sp-2016
 
     let csvStream = csv()
         .on("data", async function(data){

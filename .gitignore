@@ -1,3 +1,5 @@
 node_modules/
 .idea/
-boletions_2016.csv
+boletins_20000.csv
+boletins_1000000.csv
+boletins_complete.csv
