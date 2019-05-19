@@ -1,30 +1,39 @@
 # Adicionando pontos
 
 ## Pruden Shopping
+```
 db.locais.insert({
   nome: "Pruden Shopping",
   localizacao: { type: "Point", coordinates: [-51.408682663524246, -22.115842077820343] }
 })
+```
 
 ## Unesp
+```
 db.locais.insert({
   nome: "Unesp",
   localizacao: { type: "Point", coordinates: [-51.407948312724386, -22.12119306965996] }
 })
+```
 
 ## Museu
+```
 db.locais.insert({
   nome: "Museu",
   localizacao: { type: "Point", coordinates: [-51.41174038180122, -22.11696523202623] }
 })
+```
 
 ## Sesc
+```
 db.locais.insert({
   nome: "Sesc",
   localizacao: { type: "Point", coordinates: [-51.41418803946715, -22.12053401226615] }
 })
+```
 
 ## Avenida Manuel Goulart
+```
 db.locais.insert({
   nome: "Avenida Manuel Goulart",
   localizacao: {
@@ -87,15 +96,19 @@ db.locais.insert({
     ]
   }
 })
+```
 
 # Criando o índice esférico
+```
 db.locais.createIndex({ localizacao: "2dsphere" })
+```
 
 # Operações com GeoJSON
 
 ## Verificando pontos próximos com $near
 
 ### Quais pontos estão a 10 metros de distância do Pruden Shopping?
+```
 db.locais.find({
     localizacao: {
         $near: {
@@ -107,8 +120,10 @@ db.locais.find({
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
+```
 
 ### Quais pontos estão a 400 metros de distância do Pruden Shopping?
+```
 db.locais.find({
     localizacao: {
         $near: {
@@ -120,8 +135,10 @@ db.locais.find({
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
+```
 
 ### Quais pontos estão a 700 metros de distância do Pruden Shopping?
+```
 db.locais.find({
     localizacao: {
         $near: {
@@ -133,8 +150,10 @@ db.locais.find({
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
+```
 
 ### Quais pontos estão a 1000 metros de distância do Pruden Shopping?
+```
 db.locais.find({
     localizacao: {
         $near: {
@@ -146,8 +165,10 @@ db.locais.find({
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
+```
 
 ## Calculando distância de geometrias próximas com GeoJSON
+```
 db.locais.aggregate([
     {
         $geoNear: {
@@ -164,9 +185,11 @@ db.locais.aggregate([
         $project: { _id: 0, nome: 1, distance: 1 }      //escolhe os campos retornados
     },
 ])
+```
 
 
 ## Verificando pontos que estão contidos em um polígono
+```
 db.locais.find({
     localizacao: {
         $geoWithin: {
@@ -232,8 +255,10 @@ db.locais.find({
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
+```
 
 ## Verificando pontos que interceptam um polígono
+```
 db.locais.find({
     localizacao: {
         $geoIntersects: {
@@ -299,3 +324,4 @@ db.locais.find({
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
+```
