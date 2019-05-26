@@ -1,6 +1,23 @@
 let map;
+let heatmap;
+
+let markers = [];
 
 let bounds;
+
+function toggleMarkers(){
+    let isVisible = !!markers[0].getMap();
+
+    markers.forEach(item => {
+        item.setMap(isVisible ? null : map);
+    });
+};
+
+function toggleHeatmap(){
+    let isVisible = !!heatmap.getMap();
+
+    heatmap.setMap(isVisible ? null : map);
+};
 
 async function getPoints(){
     try{
@@ -68,11 +85,13 @@ async function getOcorrencias(){
             throw new Error(responseBody.message);
         }else{
 
+            let markersHeatMap = [];
+
             responseBody.ocorrencias.forEach((item) => {
-                let myLatlng = new google.maps.LatLng(item.localizacao.coordinates[1], item.localizacao.coordinates[0]);
+                let markerLatlng = new google.maps.LatLng(item.localizacao.coordinates[1], item.localizacao.coordinates[0]);
 
                 let marker = new google.maps.Marker({
-                    position: myLatlng,
+                    position: markerLatlng,
                     map: map,
                     title: item._id,
                     numero_bo: item.numero_bo,
@@ -84,6 +103,10 @@ async function getOcorrencias(){
                     cidade: item.cidade,
                     logradouro: item.logradouro,
                 });
+
+                markers.push(marker);
+
+                markersHeatMap.push(markerLatlng);
 
                 marker.addListener('click', function() {
                     new google.maps.InfoWindow({
@@ -100,6 +123,12 @@ async function getOcorrencias(){
                         maxWidth: 400
                     }).open(map, this);
                 });
+            });
+
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: markersHeatMap,
+                map: map,
+                radius: 30
             });
         }
     } catch (err) {
@@ -216,6 +245,8 @@ function initMap() {
         zoom: 2
     });
 
+    initDraw();
+
     //https://developers.google.com/maps/documentation/javascript/examples/directions-draggable
 
     google.maps.event.addListener(map, 'mousemove', function (event) {
@@ -320,6 +351,60 @@ function initMap() {
     // getGeometry();
     getOcorrencias();
 
+
+    // google.maps.event.addListener(circle, 'radius_changed', function() {
+    //     console.log(circle.getRadius());
+    // });
+    //
+    // google.maps.event.addListener(outerPath, 'set_at', function() {
+    //     console.log('Vertex moved on outer path.');
+    // });
+    //
+    // google.maps.event.addListener(innerPath, 'insert_at', function() {
+    //     console.log('Vertex removed from inner path.');
+    // });
+    //
+    // google.maps.event.addListener(rectangle, 'bounds_changed', function() {
+    //     console.log('Bounds changed.');
+    // });
+}
+
+function initDraw(){
+    let drawingManager = new google.maps.drawing.DrawingManager({
+        drawingMode: google.maps.drawing.OverlayType.MARKER,
+        drawingControl: true,
+        drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: ['marker', 'circle', 'polygon', 'polyline', 'rectangle']
+        },
+        markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
+        circleOptions: {
+            fillColor: '#ffff00',
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1
+        }
+    });
+    drawingManager.setMap(map);
+
+    google.maps.event.addListener(drawingManager, 'circlecomplete', function(circle) {
+        console.log("circlecomplete =", circle);
+    });
+
+    google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
+        console.log("polygoncomplete =", polygon);
+    });
+
+    google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+        console.log("overlaycomplete =", event);
+
+        if (event.type === 'circle') {
+            let radius = event.overlay.getRadius();
+            console.log("circlecomplete =", radius);
+        }
+    });
 
     // google.maps.event.addListener(circle, 'radius_changed', function() {
     //     console.log(circle.getRadius());
