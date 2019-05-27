@@ -148,52 +148,65 @@ app.get('/api/polygon', asyncMiddleware(async (req, res) => {
 //create polygon
 app.post('/api/geometry', asyncMiddleware(async (req, res) => {
 
+    let type = req.body.type;
+    let coordinates = req.body.coordinates;
+    console.log("type =", type);
+    console.log("coordinates =", coordinates);
+
     await new GeometryModel({
-        name: 'PrudenShopping',
+        name: type,
         location: {
-            "type": "Point",
-            "coordinates": [-51.40741554392724, -22.115527197433412]
+            "type": type,
+            "coordinates": coordinates
         }
     }).save();
 
-    await new GeometryModel({
-        name: 'Museu',
-        location: {
-            "type": "Point",
-            "coordinates": [-51.41130310096503, -22.11640242793752]
-        }
-    }).save();
-
-    await new GeometryModel({
-        name: 'Unesp',
-        location: {
-            "type": "Point",
-            "coordinates": [-51.40755702879477, -22.121802594724592]
-        }
-    }).save();
-
-    await new GeometryModel({
-        name: 'Unesp',
-        // location: {
-        //     "type": "Polygon",
-        //     "coordinates": [[
-        //         [-51.40755702879477, -22.121802594724592],
-        //         [-51.412369823285644, -22.119079631547432],
-        //         [-51.40204264789077, -22.118055078830448],
-        //         [-51.40244770208369, -22.11390681529527]
-        //     ]]
-        // }
-        location: {
-            "type": "Polygon",
-            "coordinates": [[
-                [-109, 41],
-                [-102, 41],
-                [-102, 37],
-                [-109, 37],
-                [-109, 41]
-            ]]
-        }
-    }).save();
+    // await new GeometryModel({
+    //     name: 'PrudenShopping',
+    //     location: {
+    //         "type": "Point",
+    //         "coordinates": [-51.40741554392724, -22.115527197433412]
+    //     }
+    // }).save();
+    //
+    // await new GeometryModel({
+    //     name: 'Museu',
+    //     location: {
+    //         "type": "Point",
+    //         "coordinates": [-51.41130310096503, -22.11640242793752]
+    //     }
+    // }).save();
+    //
+    // await new GeometryModel({
+    //     name: 'Unesp',
+    //     location: {
+    //         "type": "Point",
+    //         "coordinates": [-51.40755702879477, -22.121802594724592]
+    //     }
+    // }).save();
+    //
+    // await new GeometryModel({
+    //     name: 'Unesp',
+    //     // location: {
+    //     //     "type": "Polygon",
+    //     //     "coordinates": [[
+    //     //         [-51.40755702879477, -22.121802594724592],
+    //     //         [-51.412369823285644, -22.119079631547432],
+    //     //         [-51.40204264789077, -22.118055078830448],
+    //     //         [-51.40244770208369, -22.11390681529527]
+    //     //     ]]
+    //     // }
+    //     location: {
+    //         "type": "Polygon",
+    //         "coordinates": [[
+    //             [-109, 41],
+    //             [-102, 41],
+    //             [-102, 37],
+    //             [-109, 37],
+    //             [-109, 41]
+    //         ]]
+    //     }
+    // }).save();
 
     res.json({
         success: true,

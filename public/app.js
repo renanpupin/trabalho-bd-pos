@@ -375,7 +375,7 @@ function initDraw(){
         drawingControl: true,
         drawingControlOptions: {
             position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: ['marker', 'circle', 'polygon', 'polyline', 'rectangle']
+            drawingModes: ['marker', 'circle', 'polygon', 'polyline']
         },
         markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
         circleOptions: {

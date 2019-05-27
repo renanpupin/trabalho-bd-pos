@@ -6,10 +6,12 @@ let GeometrySchema = new Schema({
     location: {
         type: {
             type: String,
+            enum: ['Point', 'LineString', 'Polygon'],
             required: true
         },
         coordinates: {
-            type: [Number],
+            type: [],
+            // type: [Schema.Types.Mixed],
             required: true
         }
     }
