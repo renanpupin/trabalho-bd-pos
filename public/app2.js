@@ -43,11 +43,11 @@ async function getGeometries(){
                     let polyline = new google.maps.Polyline({
                         map: map,
                         path: coords,
-                        strokeColor: '#FF0000',
-                        strokeOpacity: 0.8,
+                        // strokeColor: '#FF0000',
+                        // strokeOpacity: 0.8,
                         strokeWeight: 5,
-                        fillColor: '#FF0000',
-                        fillOpacity: 0.35,
+                        // fillColor: '#FF0000',
+                        // fillOpacity: 0.35,
                         coordinates: item.location.coordinates
                     });
 
@@ -195,6 +195,9 @@ function initMap() {
             position: google.maps.ControlPosition.TOP_CENTER,
             drawingModes: ['marker', 'polygon', 'polyline']
         },
+        polylineOptions: {
+            strokeWeight: 5,
+        }
     });
 
     //add listeners for draw tools

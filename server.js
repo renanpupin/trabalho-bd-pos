@@ -239,28 +239,90 @@ app.get('/api/geometry', asyncMiddleware(async (req, res) => {
 // get ocorrencias
 app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
 
-    let ocorrencias = await OcorrenciaModel.find({
-        // localizacao: {
-        //     $near: {
-        //         $maxDistance: 1000000000000000000000000,
-        //         $geometry: {
-        //             type: "Point",
-        //             coordinates: [-21, -42]
+    let type = req.query.type;
+    let lon = req.query.lon;
+    let lat = req.query.lat;
+    let radius = req.query.radius;
+    let distance = radius ? Number(radius) : 5000;
+    let path = req.query.path;
+    console.log("type = ", type);
+    console.log("lon = ", lon);
+    console.log("lat = ", lat);
+    console.log("radius = ", radius);
+    console.log("distance = ", distance);
+    console.log("path = ", path);
+
+    let query = {};
+    if(type === "Point" || type === "Circle"){
+        query = {
+            localizacao: {
+                $near: {
+                    $maxDistance: distance,
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [lon, lat]
+                    }
+                }
+            }
+        };
+    }else if(type === "LineString"){
+        query = {
+            localizacao: {
+                $geoIntersects: {
+                    $geometry: {
+                        type : "Polygon",
+                        // coordinates : [ [27.528, 25.006], [14.063, 15.591] ]
+                        // coordinates: [[-46.605324401855455,-23.54017214893641],[-46.61150421142577,-23.55874117774341]]
+                        coordinates: JSON.parse(path)
+                    }
+                }
+            }
+        };
+    }else if(type === "Polygon"){
+        query = {
+            localizacao: {
+                $geoWithin: {
+                    $geometry: {
+                        type : "Polygon" ,
+                        coordinates: JSON.parse(path)
+                        // coordinates: [
+                        //     [
+                        //         [-46.63244689941405,-23.516563666356102],
+                        //         [-46.64686645507811,-23.562517608332776],
+                        //         [-46.57820190429686,-23.561573510861336],
+                        //         [-46.63244689941405,-23.516563666356102]
+                        //     ]
+                        // ]
+                    }
+                }
+            }
+        };
+    }
+
+    let ocorrencias = await OcorrenciaModel
+        .find(query)
+        // {
+        //     localizacao: {
+        //         $near: {
+        //             $maxDistance: 1000000000000000000000000,
+        //             $geometry: {
+        //                 type: "Point",
+        //                 coordinates: [-21, -42]
+        //             }
+        //         }
+        //     }
+        //     localizacao: {
+        //         $geoWithin: {
+        //             $geometry: {
+        //                 type : "Polygon" ,
+        //                 coordinates: [ [ [ -54, -18 ], [ -41, -17 ], [ -41, -27 ], [ -57, -27 ], [ -54, -18 ] ] ]
+        //             }
         //         }
         //     }
         // }
-        // localizacao: {
-        //     $geoWithin: {
-        //         $geometry: {
-        //             type : "Polygon" ,
-        //             coordinates: [ [ [ -54, -18 ], [ -41, -17 ], [ -41, -27 ], [ -57, -27 ], [ -54, -18 ] ] ]
-        //         }
-        //     }
-        // }
-    })
-    .limit(500)
-    .skip(0)
-    .exec();
+        .limit(5000)
+        .skip(0)
+        .exec();
 
 
     //Lista de crimos
