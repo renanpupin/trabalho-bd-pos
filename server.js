@@ -7,9 +7,6 @@ const asyncMiddleware = require("./src/utils/asyncMiddleware");
 const fs = require('fs');
 const csv = require('fast-csv');
 
-
-const PointModel = require("./src/models/point");
-const PolygonModel = require("./src/models/polygon");
 const GeometryModel = require("./src/models/geometry");
 const OcorrenciaModel = require("./src/models/ocorrencia");
 
@@ -25,125 +22,9 @@ app.use(function(req, res, next) {
 });
 app.use(express.static(path.join(__dirname, 'public')));
 
-//port that the application will run
 let port = process.env.PORT || 5000;
 
 database.connect();
-
-const getRandomLatLon = () => {
-    let minLat = -90;
-    let maxLat = 90;
-
-    let minLon = -180;
-    let maxLon = 180;
-
-    return [
-        Math.random() * (maxLon - minLon) + minLon,
-        Math.random() * (maxLat - minLat) + minLat
-    ]
-};
-
-// API routes
-
-//create point
-app.post('/api/point', asyncMiddleware(async (req, res) => {
-
-    const points = [];
-    for (let i = 0; i < 100; i++){
-        points.push(
-            new PointModel({
-                name: "Ponto "+i,
-                location: {
-                    type: "Point",
-                    // coordinates: [132, -24]
-                    coordinates: getRandomLatLon()
-                }
-            })
-        );
-    }
-    for (const point of points) {
-        await point.save();
-    }
-
-    res.json({
-        success: true,
-        message: "Pontos adicionados com sucesso"
-    });
-}));
-
-// get points
-app.get('/api/point', asyncMiddleware(async (req, res) => {
-
-    let points = await PointModel.find({
-        location: {
-            $near: {
-                $maxDistance: 1000000000000000000000000,
-                $geometry: {
-                    type: "Point",
-                    coordinates: [-21, -42]
-                }
-            }
-        }
-    });
-
-    res.json({
-        success: true,
-        message: "Pontos buscados com sucesso",
-        points
-    });
-}));
-
-//create polygon
-app.post('/api/polygon', asyncMiddleware(async (req, res) => {
-
-    await new PolygonModel({
-        name: 'Colorado',
-        location: {
-            "type": "Polygon",
-            "coordinates": [[
-                [-109, 41],
-                [-102, 41],
-                [-102, 37],
-                [-109, 37],
-                [-109, 41]
-            ]]
-        }
-    }).save();
-
-    res.json({
-        success: true,
-        message: "Cidade adicionada com sucesso"
-    });
-}));
-
-// get polygons
-app.get('/api/polygon', asyncMiddleware(async (req, res) => {
-
-    const colorado = {
-        type: 'Polygon',
-        coordinates: [[
-            [-109, 41],
-            [-102, 41],
-            [-102, 37],
-            [-109, 37],
-            [-109, 41]
-        ]]
-    };
-
-    let polygons = await PolygonModel.find({
-        // location: {
-        //     $geoWithin: {
-        //         $geometry: colorado
-        //     }
-        // }
-    });
-
-    res.json({
-        success: true,
-        message: "Polígonos buscados com sucesso",
-        polygons
-    });
-}));
 
 //create polygon
 app.post('/api/geometry', asyncMiddleware(async (req, res) => {
@@ -160,53 +41,6 @@ app.post('/api/geometry', asyncMiddleware(async (req, res) => {
             "coordinates": coordinates
         }
     }).save();
-
-    // await new GeometryModel({
-    //     name: 'PrudenShopping',
-    //     location: {
-    //         "type": "Point",
-    //         "coordinates": [-51.40741554392724, -22.115527197433412]
-    //     }
-    // }).save();
-    //
-    // await new GeometryModel({
-    //     name: 'Museu',
-    //     location: {
-    //         "type": "Point",
-    //         "coordinates": [-51.41130310096503, -22.11640242793752]
-    //     }
-    // }).save();
-    //
-    // await new GeometryModel({
-    //     name: 'Unesp',
-    //     location: {
-    //         "type": "Point",
-    //         "coordinates": [-51.40755702879477, -22.121802594724592]
-    //     }
-    // }).save();
-    //
-    // await new GeometryModel({
-    //     name: 'Unesp',
-    //     // location: {
-    //     //     "type": "Polygon",
-    //     //     "coordinates": [[
-    //     //         [-51.40755702879477, -22.121802594724592],
-    //     //         [-51.412369823285644, -22.119079631547432],
-    //     //         [-51.40204264789077, -22.118055078830448],
-    //     //         [-51.40244770208369, -22.11390681529527]
-    //     //     ]]
-    //     // }
-    //     location: {
-    //         "type": "Polygon",
-    //         "coordinates": [[
-    //             [-109, 41],
-    //             [-102, 41],
-    //             [-102, 37],
-    //             [-109, 37],
-    //             [-109, 41]
-    //         ]]
-    //     }
-    // }).save();
 
     res.json({
         success: true,
@@ -261,6 +95,7 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
                     $geometry: {
                         type: "Point",
                         coordinates: [lon, lat]
+                        // coordinates: [-46.605324401855455,-23.54017214893641]
                     }
                 }
             }
@@ -271,9 +106,8 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
                 $geoIntersects: {
                     $geometry: {
                         type : "Polygon",
-                        // coordinates : [ [27.528, 25.006], [14.063, 15.591] ]
-                        // coordinates: [[-46.605324401855455,-23.54017214893641],[-46.61150421142577,-23.55874117774341]]
                         coordinates: JSON.parse(path)
+                        // coordinates: [[-46.605324401855455,-23.54017214893641],[-46.61150421142577,-23.55874117774341]]
                     }
                 }
             }
@@ -301,38 +135,9 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
 
     let ocorrencias = await OcorrenciaModel
         .find(query)
-        // {
-        //     localizacao: {
-        //         $near: {
-        //             $maxDistance: 1000000000000000000000000,
-        //             $geometry: {
-        //                 type: "Point",
-        //                 coordinates: [-21, -42]
-        //             }
-        //         }
-        //     }
-        //     localizacao: {
-        //         $geoWithin: {
-        //             $geometry: {
-        //                 type : "Polygon" ,
-        //                 coordinates: [ [ [ -54, -18 ], [ -41, -17 ], [ -41, -27 ], [ -57, -27 ], [ -54, -18 ] ] ]
-        //             }
-        //         }
-        //     }
-        // }
         .limit(5000)
         .skip(0)
         .exec();
-
-
-    //Lista de crimos
-    // Furto (art. 155)
-    // Roubo (art. 157)
-    // Lesão corporal (art 129 § 9º)
-    // Furto qualificado (art. 155, §4o.)
-    // Lesão corporal culposa na direção de veículo automotor (Art. 303)
-    // Lesão corporal seguida de morte (art. 129, §3o.)
-    // A.I.-Drogas sem autorização ou em desacordo (Art.33, caput)
 
     res.json({
         success: true,

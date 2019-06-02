@@ -1,9 +1,6 @@
 let map;
 let heatmap;
-
 let markers = [];
-
-let bounds;
 
 function toggleMarkers(){
     let isVisible = !!markers[0].getMap();
@@ -11,67 +8,104 @@ function toggleMarkers(){
     markers.forEach(item => {
         item.setMap(isVisible ? null : map);
     });
-};
+}
 
 function toggleHeatmap(){
     let isVisible = !!heatmap.getMap();
 
     heatmap.setMap(isVisible ? null : map);
-};
+}
 
-async function getPoints(){
-    try{
-        let response = await fetch('/api/point');
-        console.log(response);
-
-        if (response.status !== 200) {
-            throw new Error("Erro: "+response.status);
-        }
-
-        let responseBody = await response.json();
-        console.log(responseBody);
-
-        if(!responseBody.success){
-            throw new Error(responseBody.message);
-        }else{
-
-            let size = 503.947;
-            let scale = 75;
-            responseBody.points.forEach((item) => {
-                let myLatlng = new google.maps.LatLng(item.location.coordinates[1], item.location.coordinates[0]);
-
-                let marker = new google.maps.Marker({
-                    position: myLatlng,
-                    map: map,
-                    title: item.name,
-                    icon: {
-                        url: './rocket.svg',
-                        size: new google.maps.Size(size, size),
-                        scaledSize: new google.maps.Size(scale, scale),
-                        origin: new google.maps.Point(0, 0),
-                        anchor: new google.maps.Point(scale/2, scale)
-                    },
-                    animation: google.maps.Animation.BOUNCE,
-                });
+function sortObject(obj) {
+    let arr = [];
+    for (let prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            arr.push({
+                'key': prop,
+                'value': obj[prop]
             });
-
-            // function toggleBounce() {
-            //     if (marker.getAnimation() !== null) {
-            //         marker.setAnimation(null);
-            //     } else {
-            //         marker.setAnimation(google.maps.Animation.BOUNCE);
-            //     }
-            // }
         }
-    } catch (err) {
-        console.log(err);
-        alert('Fetch Error:'+ err.message);
+    }
+    arr.sort((a, b) => b.value - a.value);
+    return arr; // returns array
+}
+
+function getStats(){
+    let reasons = {};
+    for(let marker of markers){
+        if(!reasons[marker.crime]){
+            reasons[marker.crime] = 1;
+        }else{
+            reasons[marker.crime]++;
+        }
+    }
+    console.log("getStats", reasons);
+
+    // let reasonsSorted = Object.keys(reasons).sort((a,b) => {return reasons[a] - reasons[b]});
+    let reasonsSorted = sortObject(reasons);
+    console.log("reasonsSorted =", reasonsSorted);
+
+    let html = "<h5 style='margin: 0; line-height: 2;'>Crimes</h5>";
+    reasonsSorted.forEach(item => {
+        html += "<p style='font-size: 14px; line-height: 1.5; margin: 0;'>" +
+            "<input type='checkbox' id='"+item.key+"' name='filter' onchange='handleChange(this);' checked/>" +
+            "<b>"+item.key+"</b>: "+item.value+"" +
+            "</p>";
+    });
+    document.getElementById("info").innerHTML = html;
+
+    let data = [["Crime", "Qtd"]];
+
+    reasonsSorted.forEach(item => {
+        data.push([item.key, item.value])
+    });
+
+    drawChart(google.visualization.arrayToDataTable(data));
+}
+
+function drawChart(data) {
+    // Define the chart to be drawn.
+    // var data = google.visualization.arrayToDataTable([
+    //     ['Year', 'Asia', 'Europe'],
+    //     ['2012',  900,      390],
+    //     ['2013',  1000,      400],
+    //     ['2014',  1170,      440],
+    //     ['2015',  1250,       480],
+    //     ['2016',  1530,      540]
+    // ]);
+
+    let chart = new google.visualization.ColumnChart(document.getElementById('chart_container'));
+    chart.draw(data, {title: 'Crimes em SP'});
+}
+
+function handleChange(checkbox){
+    // console.log(checkbox);
+
+    let id = checkbox.id;
+    let checked = checkbox.checked;
+
+    for(let marker of markers){
+        if(marker.crime === id){
+            marker.setMap(checked ? map : null);
+        }
     }
 }
 
-async function getOcorrencias(){
+async function getOcorrencias({type = null, lon = null, lat = null, radius = null, path = null}){
     try{
-        let response = await fetch('/api/ocorrencias');
+
+        let url = "";
+        if(type === "Point"){
+            url = "?type=Point&lon="+lon+"&lat="+lat;
+        }else if(type === "Circle"){
+            url = "?type=Circle&lon="+lon+"&lat="+lat+"&radius="+radius;
+        }else if(type === "LineString"){
+            url = "?type=LineString&path="+path;
+        }else if(type === "Polygon"){
+            url = "?type=Polygon&path="+path;
+        }
+
+        let response = await fetch('/api/ocorrencias'+url);
         console.log(response);
 
         if (response.status !== 200) {
@@ -125,110 +159,13 @@ async function getOcorrencias(){
                 });
             });
 
-            heatmap = new google.maps.visualization.HeatmapLayer({
-                data: markersHeatMap,
-                map: map,
-                radius: 30
-            });
-        }
-    } catch (err) {
-        console.log(err);
-        alert('Fetch Error:'+ err.message);
-    }
-}
+            // heatmap = new google.maps.visualization.HeatmapLayer({
+            //     data: markersHeatMap,
+            //     map: map,
+            //     radius: 30
+            // });
 
-async function getPolygon(){
-    try{
-        let response = await fetch('/api/polygon');
-        console.log(response);
-
-        if (response.status !== 200) {
-            throw new Error("Erro: "+response.status);
-        }
-
-        let responseBody = await response.json();
-        console.log(responseBody);
-
-        if(!responseBody.success){
-            throw new Error(responseBody.message);
-        }else{
-
-            responseBody.polygons.forEach((item) => {
-                // console.log(item);
-
-                let coords = item.location.coordinates[0].map(coord => {
-                    return {lat: coord[1], lng: coord[0]}
-                });
-
-                console.log(coords);
-
-                let polygon = new google.maps.Polygon({
-                    paths: coords,
-                    strokeColor: '#FF0000',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: '#FF0000',
-                    fillOpacity: 0.35
-                });
-                polygon.setMap(map);
-
-            });
-        }
-    } catch (err) {
-        console.log(err);
-        alert('Fetch Error:'+ err.message);
-    }
-}
-
-async function getGeometry(){
-    try{
-        let response = await fetch('/api/geometry');
-        console.log(response);
-
-        if (response.status !== 200) {
-            throw new Error("Erro: "+response.status);
-        }
-
-        let responseBody = await response.json();
-        console.log(responseBody);
-
-        if(!responseBody.success){
-            throw new Error(responseBody.message);
-        }else{
-
-            responseBody.geometries.forEach((item) => {
-                console.log(item);
-
-                if(item.location.type === "Point"){
-                    let myLatlng = new google.maps.LatLng(item.location.coordinates[1], item.location.coordinates[0]);
-
-                    let marker = new google.maps.Marker({
-                        position: myLatlng,
-                        map: map,
-                        title: item.name,
-                        // animation: google.maps.Animation.BOUNCE,
-                    });
-                }else if(item.location.type === "Polygon") {
-
-                    let coords = item.location.coordinates[0].map(coord => {
-                        return {lat: coord[1], lng: coord[0]}
-                    });
-
-                    console.log(coords);
-
-                    let polygon = new google.maps.Polygon({
-                        paths: coords,
-                        strokeColor: '#FF0000',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#FF0000',
-                        fillOpacity: 0.35
-                    });
-                    polygon.setMap(map);
-                }else{
-                    alert("Tipo de geometria não suportado.");
-                }
-            });
+            getStats();
         }
     } catch (err) {
         console.log(err);
@@ -241,184 +178,71 @@ function initMap() {
 
     map = new google.maps.Map(document.getElementById('map'), {
         gestureHandling: 'cooperative',
-        center: {lat: -21, lng: -44},
-        zoom: 2
+        center: {lng: -46.64, lat: -23.56},
+        zoom: 12
     });
+
+    google.maps.event.addListener(map, 'click', function(event) {
+        console.log(event);
+    });
+
+    google.maps.event.addListener(map, 'mousemove', function (event) {
+        // console.log(event.latLng.lat(), event.latLng.lng());
+    });
+
 
     initDraw();
 
-    //https://developers.google.com/maps/documentation/javascript/examples/directions-draggable
-
-    google.maps.event.addListener(map, 'mousemove', function (event) {
-        console.log(event.latLng.lat(), event.latLng.lng());
-    });
-
-
-    // Try HTML5 geolocation.
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            let pos = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-            // console.log(pos);
-
-            // let size = 512;
-            // let scale = 50;
-            // let userLocationMarker = new google.maps.Marker({
-            //     id: "user",
-            //     position: pos,
-            //     icon: {
-            //         url: './astronaut.svg',
-            //         size: new google.maps.Size(size, size),
-            //         scaledSize: new google.maps.Size(scale, scale),
-            //         origin: new google.maps.Point(0, 0),
-            //         anchor: new google.maps.Point(scale/2, scale)
-            //     },
-            //     map: map,
-            //     title: "Sua localização",
-            //     draggable: true,
-            //     animation: google.maps.Animation.DROP,
-            //     // animation: google.maps.Animation.BOUNCE,
-            //     // info: new google.maps.InfoWindow({
-            //     //     content: 'Add some info here',
-            //     //     pixelOffset: new google.maps.Size(0, -(size)),
-            //     //     maxWidth: 400
-            //     // })
-            // });
-            //
-            // userLocationMarker.addListener('click', function() {
-            //     new google.maps.InfoWindow({
-            //         content: this.id,
-            //         pixelOffset: new google.maps.Size(-(size/2)+(scale/2),-5),
-            //         maxWidth: 400
-            //     }).open(map, this);
-            // });
-
-            map.setCenter(pos);
-            map.setZoom(6);
-
-            // let userLocationRadius = new google.maps.Circle({
-            //     strokeColor: '#FF0000',
-            //     strokeOpacity: 0.5,
-            //     strokeWeight: 2,
-            //     fillColor: '#FF0000',
-            //     fillOpacity: 0.15,
-            //     map: map,
-            //     center: userLocationMarker.position,
-            //     radius: 200000, //in meters
-            //     editable: true
-            // });
-            //
-            // userLocationMarker.addListener('drag', function (event) {
-            //     console.log("drag", event.latLng.lat(), event.latLng.lng());
-            //
-            //     userLocationRadius.setCenter({
-            //         lat: event.latLng.lat(),
-            //         lng: event.latLng.lng()
-            //     });
-            // });
-            //
-            // userLocationMarker.addListener('dragend', function (event) {
-            //     console.log("dragend", event.latLng.lat(), event.latLng.lng());
-            //
-            //     map.panTo(event.latLng);
-            // });
-
-            google.maps.event.addListener(map, 'bounds_changed', function() {
-                let bounds = map.getBounds();
-                let southWest = bounds.getSouthWest();
-                let northEast = bounds.getNorthEast();
-
-                console.log("bounds = ", bounds);
-                console.log("southWest = ", southWest);
-                console.log("northEast = ", northEast);
-            });
-
-            // http://jsfiddle.net/glafarge/mbuLw/
-
-        }, function(err) {
-            console.log(err);
-            alert("Erro: "+err.message);
-        });
-    } else {
-        // Browser doesn't support Geolocation
-        alert("Seu browser não suporta Geolocation.");
-    }
-
-    // getPoints();
-    // getPolygon();
-    // getGeometry();
-    getOcorrencias();
-
-
-    // google.maps.event.addListener(circle, 'radius_changed', function() {
-    //     console.log(circle.getRadius());
-    // });
-    //
-    // google.maps.event.addListener(outerPath, 'set_at', function() {
-    //     console.log('Vertex moved on outer path.');
-    // });
-    //
-    // google.maps.event.addListener(innerPath, 'insert_at', function() {
-    //     console.log('Vertex removed from inner path.');
-    // });
-    //
-    // google.maps.event.addListener(rectangle, 'bounds_changed', function() {
-    //     console.log('Bounds changed.');
-    // });
+    // getOcorrencias({});  //get all
 }
 
 function initDraw(){
     let drawingManager = new google.maps.drawing.DrawingManager({
-        drawingMode: google.maps.drawing.OverlayType.MARKER,
         drawingControl: true,
         drawingControlOptions: {
             position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: ['marker', 'circle', 'polygon', 'polyline']
+            drawingModes: ['circle', 'polygon']
         },
         markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
         circleOptions: {
-            fillColor: '#ffff00',
-            fillOpacity: 1,
-            strokeWeight: 5,
-            clickable: false,
-            editable: true,
-            zIndex: 1
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.15,
+            map: map,
+            center: map.getCenter(),
+            radius: 700, //in meters
+            // editable: true
         }
     });
     drawingManager.setMap(map);
 
     google.maps.event.addListener(drawingManager, 'circlecomplete', function(circle) {
         console.log("circlecomplete =", circle);
+
+        getOcorrencias({
+            type: "Circle",
+            lon: circle.getCenter().lng(),
+            lat: circle.getCenter().lat(),
+            radius: circle.getRadius()
+        });
     });
 
     google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
         console.log("polygoncomplete =", polygon);
+
+        let geometry = polygon.getPath().getArray();
+        geometry = geometry.map(item => [item.lng(), item.lat()]);
+        geometry.push(geometry[0]);
+        geometry = [geometry];
+        geometry = JSON.stringify(geometry);
+
+        console.log("geometry =", geometry);
+
+        getOcorrencias({
+            type: "Polygon",
+            path: geometry
+        });
     });
-
-    google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
-        console.log("overlaycomplete =", event);
-
-        if (event.type === 'circle') {
-            let radius = event.overlay.getRadius();
-            console.log("circlecomplete =", radius);
-        }
-    });
-
-    // google.maps.event.addListener(circle, 'radius_changed', function() {
-    //     console.log(circle.getRadius());
-    // });
-    //
-    // google.maps.event.addListener(outerPath, 'set_at', function() {
-    //     console.log('Vertex moved on outer path.');
-    // });
-    //
-    // google.maps.event.addListener(innerPath, 'insert_at', function() {
-    //     console.log('Vertex removed from inner path.');
-    // });
-    //
-    // google.maps.event.addListener(rectangle, 'bounds_changed', function() {
-    //     console.log('Bounds changed.');
-    // });
 }
