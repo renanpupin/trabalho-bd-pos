@@ -187,7 +187,6 @@ db.locais.aggregate([
 ])
 ```
 
-
 ## Verificando pontos que estão contidos em um polígono
 ```
 db.locais.find({
@@ -251,7 +250,7 @@ db.locais.find({
                     ]
                   ]
                 ]
-            },  //PrudenShopping
+            },  //Av. Manoel Goulart
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
@@ -320,7 +319,7 @@ db.locais.find({
                     ]
                   ]
                 ]
-            },  //PrudenShopping
+            },  //Av. Manoel Goulart
         }
     }
 }, { nome: 1 })	//busca apenas o campo nome
