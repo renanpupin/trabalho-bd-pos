@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //conexão com o banco de dados
 database.connect();
 
-//create polygon
+//create geometry
 app.post('/api/geometry', asyncMiddleware(async (req, res) => {
 
     let type = req.body.type;
