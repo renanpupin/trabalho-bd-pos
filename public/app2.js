@@ -44,10 +44,10 @@ async function getGeometries(){
                         map: map,
                         path: coords,
                         // strokeColor: '#FF0000',
-                        // strokeOpacity: 0.8,
-                        strokeWeight: 5,
+                        strokeOpacity: 0.8,
+                        strokeWeight: 3,
                         // fillColor: '#FF0000',
-                        // fillOpacity: 0.35,
+                        fillOpacity: 0.35,
                         coordinates: item.location.coordinates
                     });
 
@@ -70,10 +70,10 @@ async function getGeometries(){
                     let polygon = new google.maps.Polygon({
                         map: map,
                         paths: coords,
-                        strokeColor: '#FF0000',
+                        strokeColor: '#0000FF',
                         strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#FF0000',
+                        strokeWeight: 3,
+                        fillColor: '#0000FF',
                         fillOpacity: 0.35,
                         coordinates: item.location.coordinates[0]
                     });
@@ -195,8 +195,29 @@ function initMap() {
             position: google.maps.ControlPosition.TOP_CENTER,
             drawingModes: ['marker', 'polygon', 'polyline']
         },
+        circleOptions: {
+            map: map,
+            center: map.getCenter(),
+            radius: 700, //in meters
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 3,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+        },
         polylineOptions: {
-            strokeWeight: 5,
+            // strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 3,
+            // fillColor: '#FF0000',
+            fillOpacity: 0.35,
+        },
+        polygonOptions: {
+            strokeColor: '#0000FF',
+            strokeOpacity: 0.8,
+            strokeWeight: 3,
+            fillColor: '#0000FF',
+            fillOpacity: 0.35,
         }
     });
 

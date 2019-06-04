@@ -22,8 +22,8 @@ app.use(function(req, res, next) {
 });
 app.use(express.static(path.join(__dirname, 'public')));
 
-let port = process.env.PORT || 5000;
 
+//conexão com o banco de dados
 database.connect();
 
 //create polygon
@@ -76,38 +76,24 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
     let type = req.query.type;
     let lon = req.query.lon;
     let lat = req.query.lat;
-    let radius = req.query.radius;
-    let distance = radius ? Number(radius) : 5000;
+    let radius = req.query.radius ? Number(req.query.radius) : 5000;
     let path = req.query.path;
     console.log("type = ", type);
     console.log("lon = ", lon);
     console.log("lat = ", lat);
     console.log("radius = ", radius);
-    console.log("distance = ", distance);
     console.log("path = ", path);
 
     let query = {};
-    if(type === "Point" || type === "Circle"){
+    if(type === "Circle"){
         query = {
             localizacao: {
                 $near: {
-                    $maxDistance: distance,
+                    $maxDistance: radius,
                     $geometry: {
                         type: "Point",
                         coordinates: [lon, lat]
                         // coordinates: [-46.605324401855455,-23.54017214893641]
-                    }
-                }
-            }
-        };
-    }else if(type === "LineString"){
-        query = {
-            localizacao: {
-                $geoIntersects: {
-                    $geometry: {
-                        type : "Polygon",
-                        coordinates: JSON.parse(path)
-                        // coordinates: [[-46.605324401855455,-23.54017214893641],[-46.61150421142577,-23.55874117774341]]
                     }
                 }
             }
@@ -146,7 +132,7 @@ app.get('/api/ocorrencias', asyncMiddleware(async (req, res) => {
     });
 }));
 
-//importa csv de crimes
+//importa csv dos dados de boletins em SP
 app.get('/api/import/csv', function(req, res, next) {
 
     let stream = fs.createReadStream("boletins_complete.csv");   //Dados completos em: https://data.world/maszanchi/boletins-de-ocorrencia-sp-2016
@@ -215,6 +201,7 @@ app.use(function(err, req, res, next) {
 });
 
 // express listen to port
+let port = process.env.PORT || 5000;
 app.listen(port, function () {
     console.log('trabalho-bd-pos listening on port = '+port);
 });

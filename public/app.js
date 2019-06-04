@@ -64,16 +64,6 @@ function getStats(){
 }
 
 function drawChart(data) {
-    // Define the chart to be drawn.
-    // var data = google.visualization.arrayToDataTable([
-    //     ['Year', 'Asia', 'Europe'],
-    //     ['2012',  900,      390],
-    //     ['2013',  1000,      400],
-    //     ['2014',  1170,      440],
-    //     ['2015',  1250,       480],
-    //     ['2016',  1530,      540]
-    // ]);
-
     let chart = new google.visualization.ColumnChart(document.getElementById('chart_container'));
     chart.draw(data, {title: 'Crimes em SP'});
 }
@@ -169,7 +159,7 @@ async function getOcorrencias({type = null, lon = null, lat = null, radius = nul
         }
     } catch (err) {
         console.log(err);
-        alert('Fetch Error:'+ err.message);
+        // alert('Fetch Error:'+ err.message);
     }
 }
 
@@ -203,7 +193,7 @@ function initDraw(){
             position: google.maps.ControlPosition.TOP_CENTER,
             drawingModes: ['circle', 'polygon']
         },
-        markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
+        // markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
         circleOptions: {
             strokeColor: '#FF0000',
             strokeOpacity: 0.5,
