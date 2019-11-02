@@ -22,6 +22,6 @@
     "express": "^4.16.4",
     "fast-csv": "^2.5.0",
     "mongodb": "^3.2.2",
-    "mongoose": "^5.5.0"
+    "mongoose": "^5.7.5"
   }
 }
