@@ -19,7 +19,7 @@
   "homepage": "https://github.com/renanpupin/trabalho-bd-pos#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "fast-csv": "^2.5.0",
     "mongodb": "^3.2.2",
     "mongoose": "^5.5.0"
